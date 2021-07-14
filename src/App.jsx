@@ -1,7 +1,7 @@
 import React from 'react';
 import './assets/styles/style.css';
 import defaultDataset from './dataset';
-import { AnswersList } from './components/index';
+import { AnswersList, Chats } from './components/index';
 
 export default class App extends React.Component{
   constructor(props) {
@@ -17,7 +17,7 @@ export default class App extends React.Component{
   
   // answerにデータを格納する関数
   initAnswer = () => {
-    // datasetに入っているanswersの情報をkeyを指定して引っ張ってくる 初回は keyは'init'
+    // datasetに入っている情報をkeyを指定して引っ張ってくる 初回は keyは'init'
     const initDataset = this.state.dataset[this.state.currentId];
 
     // currentIdに対応するanswersのデータを格納する
@@ -27,11 +27,33 @@ export default class App extends React.Component{
       answers : initAnswer
     })
   }
+
+  // chatsにデータを格納する関数
+  initChats = () => {
+    // datasetに入っている情報をkeyを指定して引っ張ってくる 初回は keyは'init'
+    const initDataset = this.state.dataset[this.state.currentId];
+
+    // questionとanswersのどちらを取得すればいいのか
+    const chat = {
+      text: initDataset.question,
+      type: 'question' 
+    };
+
+    // propsで渡す用の変数用意
+    const chats = this.state.chats;
+
+    // chatsを更新 pushする理由は、過去のやつも積み重ねて表示するから　
+    chats.push(chat)
+    this.setState({
+      chats : chats
+    })
+  }
   
   // initAnswerの呼び出し レンダリング走った後、実行される
   // stateが変わるのでレンダリングが走り、initAnswerによって、stateのanswersの中身が更新される
   componentDidMount() {
-    this.initAnswer()
+    this.initChats();
+    this.initAnswer();
 
   }
 
@@ -39,10 +61,11 @@ export default class App extends React.Component{
     return (
       <section className="c-section">
         <div className="c-box">
+          {/* チャットを表示するコンポーネント */}
+          <Chats chats={ this.state.chats }/>
+
           {/* 回答郡を表示するコンポーネント */}
           <AnswersList answers={this.state.answers}/>
-
-          {/* チャットを表示するコンポーネント */}
 
         </div>
       </section>
