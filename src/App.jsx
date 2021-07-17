@@ -13,48 +13,59 @@ export default class App extends React.Component{
       dataset: defaultDataset,  // 質問と回答のデータセット　DBから取得したデータを想定
       open: false               // 問い合わせフォーム用モーダルの開閉
     }
+    this.selectAnswer = this.selectAnswer.bind(this);
   }
   
-  // answerにデータを格納する関数
-  initAnswer = () => {
-    // datasetに入っている情報をkeyを指定して引っ張ってくる 初回は keyは'init'
-    const initDataset = this.state.dataset[this.state.currentId];
-
-    // currentIdに対応するanswersのデータを格納する
-    const initAnswer = initDataset.answers;
-
-    this.setState({
-      answers : initAnswer
-    })
-  }
-
-  // chatsにデータを格納する関数
-  initChats = () => {
-    // datasetに入っている情報をkeyを指定して引っ張ってくる 初回は keyは'init'
-    const initDataset = this.state.dataset[this.state.currentId];
-
-    // questionとanswersのどちらを取得すればいいのか
-    const chat = {
-      text: initDataset.question,
-      type: 'question' 
-    };
-
-    // propsで渡す用の変数用意
+  // 選択後、次の質問を表示させるための関数
+  displayNextQuestion = (nextQuestionId) => {
     const chats = this.state.chats;
+    chats.push({
+      text: this.state.dataset[nextQuestionId].question,
+      type: 'question',
+    })
 
-    // chatsを更新 pushする理由は、過去のやつも積み重ねて表示するから　
-    chats.push(chat)
     this.setState({
-      chats : chats
+      answers: this.state.dataset[nextQuestionId].answers,
+      chats: chats,
+      currentId : nextQuestionId
     })
   }
-  
-  // initAnswerの呼び出し レンダリング走った後、実行される
-  // stateが変わるのでレンダリングが走り、initAnswerによって、stateのanswersの中身が更新される
-  componentDidMount() {
-    this.initChats();
-    this.initAnswer();
 
+  // 回答を選択してその回答結果を格納し、次の質問を表示する
+  selectAnswer = ( selectedAnswer,nextQuestionId ) => {
+    switch (true) {
+      // 初回
+      case (nextQuestionId === "init"):
+        this.displayNextQuestion(nextQuestionId);
+        break;
+
+      //初回以外
+      default:
+        // propsで渡す用の変数用意
+        const chats = this.state.chats;
+
+        // chatsを更新 pushする理由は、過去のやつも積み重ねて表示するから　
+        chats.push({
+          text: selectedAnswer,
+          type : 'answer'
+        });
+
+        // chatsに今の回答結果を貯めて再レンダリング
+        this.setState({
+          chats: chats
+        })
+
+        // 次の質問を表示
+        this.displayNextQuestion(nextQuestionId);
+
+        break;
+    }
+  }
+
+  // 初回のみ、つまりcurrentIdには"init"が入る
+  componentDidMount() {
+    const initAnswer = "";
+    this.selectAnswer(initAnswer, this.state.currentId);
   }
 
   render() {
@@ -65,8 +76,9 @@ export default class App extends React.Component{
           <Chats chats={ this.state.chats }/>
 
           {/* 回答郡を表示するコンポーネント */}
-          <AnswersList answers={this.state.answers}/>
-
+          <AnswersList
+            answers={this.state.answers}
+            select={this.selectAnswer} />
         </div>
       </section>
     );

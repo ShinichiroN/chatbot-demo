@@ -20,7 +20,7 @@ const Chats = (props) => {
 				(chat, index) => {
 					return <Chat text={chat.text} type={chat.type} key={index.toString()} />
 				}
-			)};
+			)}
 		</List>
 
 	);
