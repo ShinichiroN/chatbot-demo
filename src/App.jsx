@@ -13,10 +13,11 @@ export default class App extends React.Component{
       dataset: defaultDataset,  // 質問と回答のデータセット　DBから取得したデータを想定
       open: false               // 問い合わせフォーム用モーダルの開閉
     }
+    // コンポーネントにコールバック関数を渡す際のルール
     this.selectAnswer = this.selectAnswer.bind(this);
   }
   
-  // 選択後、次の質問を表示させるための関数
+  // 次の質問を表示させるための関数
   displayNextQuestion = (nextQuestionId) => {
     const chats = this.state.chats;
     chats.push({
@@ -55,9 +56,12 @@ export default class App extends React.Component{
           chats: chats
         })
 
+        console.log('chats state更新後');
+
         // 次の質問を表示
         this.displayNextQuestion(nextQuestionId);
 
+        console.log('質問表示関数後');
         break;
     }
   }
@@ -65,10 +69,12 @@ export default class App extends React.Component{
   // 初回のみ、つまりcurrentIdには"init"が入る
   componentDidMount() {
     const initAnswer = "";
+    console.log('didMount');
     this.selectAnswer(initAnswer, this.state.currentId);
   }
 
   render() {
+    { console.log('bbb') }
     return (
       <section className="c-section">
         <div className="c-box">
@@ -76,6 +82,7 @@ export default class App extends React.Component{
           <Chats chats={ this.state.chats }/>
 
           {/* 回答郡を表示するコンポーネント */}
+          { console.log('ddd',this.state.answers)}
           <AnswersList
             answers={this.state.answers}
             select={this.selectAnswer} />

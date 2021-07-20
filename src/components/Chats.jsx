@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Chats = (props) => {
 	const classes = useStyles();
+	console.log('Chatsコンポーネントレンダリング');
 	return (
 		<List className={classes.root}>
 			{props.chats.map(

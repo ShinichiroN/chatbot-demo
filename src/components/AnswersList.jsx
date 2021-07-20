@@ -3,6 +3,7 @@ import { Answer } from './index'
 
 // 関数コンポーネントで記述
 const AnswersList = (props) => {
+	console.log('AnswersListコンポーネントレンダリング');
 	return( 
 	    <div className="c-grid__answer"> 
 		    {/* 回答の選択肢は複数あるので、answersをmapで展開する */}

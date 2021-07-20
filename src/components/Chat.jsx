@@ -10,6 +10,7 @@ const Chat = (props) => {
 	const isQuestion = (props.type === 'question');
 	// 左から出るか右から出るか　クラス名を選択
 	const classes = isQuestion ? 'p-chat__row' : 'p-chat__reverse';
+	
 	return (
 		<ListItem className={ classes }>
 			<ListItemAvatar>
