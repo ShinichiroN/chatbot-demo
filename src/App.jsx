@@ -1,7 +1,7 @@
 import React from 'react';
 import './assets/styles/style.css';
 import defaultDataset from './dataset';
-import { AnswersList, Chats } from './components/index';
+import { AnswersList, Chats, FormDialog } from './components/index';
 
 export default class App extends React.Component{
   constructor(props) {
@@ -15,6 +15,10 @@ export default class App extends React.Component{
     }
     // コンポーネントにコールバック関数を渡す際のルール
     this.selectAnswer = this.selectAnswer.bind(this);
+
+		// 再レンダリングされた時にpropsに渡すとき毎度関数が生成されてしまうのを防ぐ
+		this.handleClickOpen = this.handleClickOpen.bind(this);
+		this.handleClose = this.handleClose.bind(this);
   }
   
   // 次の質問を表示させるための関数
@@ -40,6 +44,21 @@ export default class App extends React.Component{
         this.displayNextQuestion(nextQuestionId);
         break;
 
+      // 問い合わせるが選択された時は、モーダルを表示する
+      case (nextQuestionId === 'contact'):
+        this.handleClickOpen();
+        break;
+
+      // nextQuestionIdの値が、先頭'https:'で始まる場合は、設定されている外部リンクに飛ばす
+      case (/^https:.*/.test(nextQuestionId)):
+        // aタグを生成し、そのaタグをクリックしたことにして別タブでページ遷移する
+        const a = document.createElement('a');
+        a.href = nextQuestionId;
+        a.target = '_blank';
+        a.click();
+        break;
+
+
       //初回以外
       default:
         // propsで渡す用の変数用意
@@ -59,18 +78,37 @@ export default class App extends React.Component{
         console.log('chats state更新後');
 
         // 次の質問を表示
-        this.displayNextQuestion(nextQuestionId);
+        setTimeout(() => { this.displayNextQuestion(nextQuestionId) },500);
 
         console.log('質問表示関数後');
         break;
     }
   }
 
+	handleClickOpen = () => {
+		this.setState({
+			'open': true
+		});
+	}
+
+	handleClose = () => {
+		this.setState({
+			'open': false 
+		});
+	}
+
   // 初回のみ、つまりcurrentIdには"init"が入る
   componentDidMount() {
     const initAnswer = "";
     console.log('didMount');
     this.selectAnswer(initAnswer, this.state.currentId);
+  }
+
+  componentDidUpdate(prevProps,prevState,snapshot) {
+    const scrollArea = document.getElementById('scroll-area');
+    if (scrollArea) {
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
   }
 
   render() {
@@ -86,6 +124,10 @@ export default class App extends React.Component{
           <AnswersList
             answers={this.state.answers}
             select={this.selectAnswer} />
+
+          {/* フォームを開くためのコンポーネント*/ }
+          <FormDialog open={this.state.open} handleClose={this.handleClose }/>
+
         </div>
       </section>
     );
