@@ -22,7 +22,7 @@ const sendResponse = (response: functions.Response, statusCode: number, body: an
 }
 
 
-// 
+// リクエストで受け取ったデータをfirestoresのコレクションに格納する
 export const addDataset = functions.https.onRequest( async (req: any, res: any) => {
   if (req.method !== 'POST') {
     sendResponse(res, 405, { errors: 'Invalid Request!' });

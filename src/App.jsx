@@ -1,7 +1,7 @@
 import React from 'react';
 import './assets/styles/style.css';
-import defaultDataset from './dataset';
 import { AnswersList, Chats, FormDialog } from './components/index';
+import { db } from './firebase/index'
 
 export default class App extends React.Component{
   constructor(props) {
@@ -10,7 +10,7 @@ export default class App extends React.Component{
       answers: [],              //回答を表示するデータ
       chats:[],                 // チャットコンポーネントに表示するデータ
       currentId: "init",        // 現在の質問ID
-      dataset: defaultDataset,  // 質問と回答のデータセット　DBから取得したデータを想定
+      dataset: {},              // 質問と回答のデータセット　DBから取得したデータを想定
       open: false               // 問い合わせフォーム用モーダルの開閉
     }
     // コンポーネントにコールバック関数を渡す際のルール
@@ -97,11 +97,33 @@ export default class App extends React.Component{
 		});
 	}
 
+  initDataset = (dataset) => {
+    this.setState({ dataset: dataset });
+  }
+
   // 初回のみ、つまりcurrentIdには"init"が入る
   componentDidMount() {
-    const initAnswer = "";
-    console.log('didMount');
-    this.selectAnswer(initAnswer, this.state.currentId);
+    // DBから質問と回答情報が記載されたデータセットを読み込む
+    console.log('Did Mount');
+    (async () => {
+      console.log('async');
+      const dataset = this.state.dataset;
+
+      await db.collection('question').get().then(snapshots => {
+        snapshots.forEach(doc => {
+          const id = doc.id
+          const data = doc.data();
+          dataset[id] = data;
+        });
+      })
+
+      this.initDataset(dataset);
+      console.log(dataset);
+
+      const initAnswer = "";
+      console.log('didMount');
+      this.selectAnswer(initAnswer, this.state.currentId);
+    })();
   }
 
   componentDidUpdate(prevProps,prevState,snapshot) {
